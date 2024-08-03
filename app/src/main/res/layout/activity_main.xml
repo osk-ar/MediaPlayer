@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient">
+
+
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView6">
+
+        <soup.neumorphism.NeumorphImageView
+            android:id="@+id/center_img"
+            style="@style/Widget.Neumorph.ImageCircle"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+
+            android:layout_marginTop="0dp"
+            android:padding="0dp"
+
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:neumorph_backgroundColor="@color/view_bg"
+
+            app:neumorph_inset="12dp"
+            app:neumorph_insetBottom="12dp"
+            app:neumorph_insetEnd="12dp"
+
+            app:neumorph_insetStart="12dp"
+            app:neumorph_insetTop="12dp"
+
+            app:neumorph_lightSource="leftTop"
+            app:neumorph_shadowColorDark="@color/shadow_dark"
+            app:neumorph_shadowColorLight="@color/white"
+            app:neumorph_shadowElevation="6dp"
+            app:neumorph_shapeType="flat" />
+
+        <ImageView
+            android:id="@+id/blue_img"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+    <soup.neumorphism.NeumorphImageButton
+
+        android:id="@+id/play_pause"
+        style="@style/Widget.Neumorph.ButtonCircle"
+        android:layout_width="125dp"
+
+        android:layout_height="125dp"
+
+
+        android:paddingStart="8dp"
+        android:paddingEnd="0dp"
+        android:scaleType="center"
+        android:src="@drawable/play"
+        app:layout_constraintBottom_toBottomOf="@+id/before"
+        app:layout_constraintEnd_toStartOf="@+id/after"
+        app:layout_constraintStart_toEndOf="@+id/before"
+        app:layout_constraintTop_toTopOf="@+id/after"
+        app:neumorph_backgroundColor="@color/view_bg"
+        app:neumorph_inset="12dp"
+        app:neumorph_insetBottom="12dp"
+        app:neumorph_insetEnd="12dp"
+        app:neumorph_insetStart="12dp"
+        app:neumorph_insetTop="12dp"
+        app:neumorph_lightSource="leftTop"
+        app:neumorph_shadowColorDark="@color/shadow_dark"
+        app:neumorph_shadowColorLight="@color/shadow_light"
+        app:neumorph_shadowElevation="6dp"
+        app:neumorph_shapeType="flat" />
+
+
+    <soup.neumorphism.NeumorphImageButton
+
+        android:id="@+id/before"
+        style="@style/Widget.Neumorph.ButtonCircle"
+        android:layout_width="75dp"
+
+        android:layout_height="75dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginBottom="64dp"
+
+        android:padding="25dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/before_sound"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:neumorph_backgroundColor="@color/view_bg"
+        app:neumorph_inset="12dp"
+
+        app:neumorph_insetBottom="12dp"
+        app:neumorph_insetEnd="12dp"
+        app:neumorph_insetStart="12dp"
+        app:neumorph_insetTop="12dp"
+        app:neumorph_lightSource="leftTop"
+
+        app:neumorph_shadowColorDark="@color/shadow_dark"
+        app:neumorph_shadowColorLight="@color/shadow_light"
+        app:neumorph_shadowElevation="6dp"
+
+        app:neumorph_shapeType="flat" />
+
+    <soup.neumorphism.NeumorphImageButton
+
+        android:id="@+id/after"
+        style="@style/Widget.Neumorph.ButtonCircle"
+        android:layout_width="75dp"
+
+        android:layout_height="75dp"
+        android:layout_marginEnd="64dp"
+        android:layout_marginBottom="64dp"
+
+        android:padding="25dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/next_sound"
+
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:neumorph_backgroundColor="@color/view_bg"
+        app:neumorph_inset="12dp"
+
+        app:neumorph_insetBottom="12dp"
+        app:neumorph_insetEnd="12dp"
+        app:neumorph_insetStart="12dp"
+        app:neumorph_insetTop="12dp"
+        app:neumorph_lightSource="leftTop"
+
+        app:neumorph_shadowColorDark="@color/shadow_dark"
+        app:neumorph_shadowColorLight="@color/shadow_light"
+        app:neumorph_shadowElevation="6dp"
+
+        app:neumorph_shapeType="flat" />
+
+    <ImageButton
+        android:id="@+id/back"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#00FFFFFF"
+        android:scaleType="centerInside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back2" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Playing Now..."
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/back" />
+
+    <ProgressBar
+        android:id="@+id/sound_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:progressTint="#0384e5"
+        app:layout_constraintBottom_toTopOf="@+id/play_pause"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/time_passed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:text="00:00"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sound_progress" />
+
+    <TextView
+        android:id="@+id/sound_length"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:text="00:00"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sound_progress" />
+
+    <TextView
+        android:id="@+id/sound_name_single"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/ubuntumono_bold"
+        android:letterSpacing="0.2"
+        android:text="Enemy"
+        android:textColor="@color/primary"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+
+    <TextView
+        android:id="@+id/user_name_single"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/ubuntumono_regular"
+        android:text="Imagine Dragons"
+        android:textColor="#BFC0C5"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sound_name_single" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

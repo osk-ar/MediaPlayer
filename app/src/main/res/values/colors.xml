@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="bg_light">#ffffff</color>
+    <color name="bg_dark">#eef2fe</color>
+
+    <color name="shadow_light">#fafbff</color>
+    <color name="shadow_dark">#b4c3d9</color>
+
+    <color name="view_bg">#f3f4f8</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="primary">#40617B</color>
+
+</resources>
