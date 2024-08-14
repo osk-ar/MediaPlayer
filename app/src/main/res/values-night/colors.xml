@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="bg_light">#2c333b</color>
+    <color name="bg_dark">#242a31</color>
+
+    <color name="shadow_light">#4D5052</color>
+    <color name="shadow_dark">#162127</color>
+
+    <color name="view_bg">#29303a</color>
+    <color name="primary">#FFFFFF</color>
+
+    <color name="lightText">#666666</color>
+    <color name="subTitles">#FFFFFF</color>
+
+    <color name="fab1">#83D7FF</color>
+    <color name="fab2">#006BC9</color>
+    <color name="fab3">#00195B</color>
+    <color name="fab4">#B3000A28</color>
+
+</resources>

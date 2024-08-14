@@ -2,6 +2,8 @@ package com.example.mediaplayer;
 
 import static com.example.mediaplayer.HomeActivity.data;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -15,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.os.Handler;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -26,6 +29,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import soup.neumorphism.NeumorphImageButton;
@@ -34,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     // declare variables
     private int currentIndex;
-    private String[] names;
+    private String name;
 
     // declare widgets
     ImageView img;
@@ -46,16 +50,15 @@ public class MainActivity extends AppCompatActivity {
     ImageButton back;
 
     public static MediaPlayer mp;
+    Intent intent;
     Handler handler;
     Runnable runnable;
-    RotateAnimation rotate;
+    ObjectAnimator rotationAnimator;
     boolean firstTime;
     // *
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         // idk
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -65,47 +68,21 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        // *
-
 
         // initialize Widgets;
         img = findViewById(R.id.blue_img);
-        sound_progress = findViewById(R.id.sound_progress);
-
-        time_passed = findViewById(R.id.time_passed);
-        sound_length = findViewById(R.id.sound_length);
         soundName = findViewById(R.id.sound_name_single);
         soundUser = findViewById(R.id.user_name_single);
-
+        sound_progress = findViewById(R.id.sound_progress);
+        time_passed = findViewById(R.id.time_passed);
+        sound_length = findViewById(R.id.sound_length);
         play = findViewById(R.id.play_pause);
         forward = findViewById(R.id.after);
         backward = findViewById(R.id.before);
         back = findViewById(R.id.back);
-
-        Intent intent = getIntent();
-        if (savedInstanceState == null) { // Check if activity is created for the first time
-            currentIndex = intent.getIntExtra("soundID", 0);
-            names = splitAndTrim(intent.getStringExtra("soundTitle"));
-            mp = MediaPlayer.create(this, data.get(currentIndex).getSound());
-            soundName.setText(names[1]);
-            soundUser.setText(names[0]);
-        }
-
+        intent= getIntent();
         handler = new Handler();
         firstTime = true;
-        // *
-
-
-        // Create Animation
-        rotate = new RotateAnimation(
-                0,
-                360,
-                Animation.RELATIVE_TO_SELF,
-                0.5f, Animation.RELATIVE_TO_SELF,
-                0.5f);
-        rotate.setDuration(10000); // Adjust duration as needed
-        rotate.setRepeatCount(Animation.INFINITE); // Repeat indefinitely
-        rotate.setInterpolator(new LinearInterpolator()); // For smooth rotation
 
         // Crop Image to Circle
         Glide.with(this)
@@ -113,7 +90,144 @@ public class MainActivity extends AppCompatActivity {
                 .apply(new RequestOptions().circleCrop().override(750, 750))
                 .into(img);
 
+        // Create Animation
+        rotationAnimator = createAnimation();
         // Create a Scheduled runnable to determine the progress value
+        runnable = createRunnable();
+        // Check if activity is created for the first time
+        if (savedInstanceState == null) {
+            // if yes initialize mediaPlayer
+            currentIndex = intent.getIntExtra("soundID", 0);
+            name = splitAndTrim(intent.getStringExtra("soundTitle"));
+            initSound();
+        }
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Start Sound
+        startSound();
+        // back button
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+        // play / pause -> button
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mp.getCurrentPosition() == 0 && !mp.isPlaying()){
+                    initSound();
+                    startSound();
+                } else{
+                    if(mp.isPlaying())
+                        pauseSound();
+                    else
+                        startPausedSound();
+                }
+
+
+            }});
+        // forward button
+        forward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mp.reset();
+                currentIndex = (currentIndex + 1) % data.size();
+                name = splitAndTrim(data.get(currentIndex).getName());
+                initSound();
+                startSound();
+            }
+        });
+        // backward button
+        backward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mp.reset();
+                if(currentIndex == 0){currentIndex = data.size()-1;} else {currentIndex-=1;}
+                name = splitAndTrim(data.get(currentIndex).getName());
+                initSound();
+                startSound();
+            }
+        });
+
+    }
+
+    private void initSound(){
+        mp = MediaPlayer.create(getBaseContext(), data.get(currentIndex).getSound());
+        soundUser.setText(name);
+        sound_progress.setMax(mp.getDuration());
+        sound_length.setText(getFormattedTime(mp.getDuration()));
+    }
+
+    private void startSound(){
+        mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                play.setPaddingRelative(0, 0, 0, 0);
+                play.setImageResource(R.drawable.pause);
+                rotationAnimator.start();
+                handler.postDelayed(runnable, 100);
+                mp.start();
+            }
+        });
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                handler.removeCallbacks(runnable);
+                rotationAnimator.pause();
+                play.setPaddingRelative(30,20,0,20);
+                play.setImageResource(R.drawable.play);
+                sound_progress.setProgress(0);
+                time_passed.setText(getFormattedTime(0));
+                mp.reset();
+            }
+        });
+    }
+
+    private void startPausedSound(){
+        play.setPaddingRelative(0, 0, 0, 0);
+        play.setImageResource(R.drawable.pause);
+        rotationAnimator.resume();
+        handler.postDelayed(runnable, 100);
+        mp.start();
+
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                handler.removeCallbacks(runnable);
+                rotationAnimator.pause();
+                play.setPaddingRelative(30,20,0,20);
+                play.setImageResource(R.drawable.play);
+                sound_progress.setProgress(0);
+                time_passed.setText(getFormattedTime(0));
+                mp.reset();
+            }
+        });
+    }
+
+    private void pauseSound(){
+        play.setPaddingRelative(30,20,0,20);
+        play.setImageResource(R.drawable.play);
+        rotationAnimator.pause();
+        mp.pause();
+        handler.removeCallbacks(runnable);
+    }
+
+    private ObjectAnimator createAnimation(){
+        rotationAnimator = ObjectAnimator.ofFloat(img, "rotation", 0f, 360f);
+        rotationAnimator.setDuration(10000); // Set the duration for one full rotation
+        rotationAnimator.setRepeatCount(ValueAnimator.INFINITE); // Infinite rotation
+        rotationAnimator.setInterpolator(new LinearInterpolator()); // Linear animation
+
+        return rotationAnimator;
+    }
+
+    private Runnable createRunnable(){
         runnable = new Runnable() {
             @Override
             public void run() {
@@ -125,173 +239,8 @@ public class MainActivity extends AppCompatActivity {
                 handler.postDelayed(this, 100); // Update every 100 milliseconds
             }
         };
-        // ***
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        if (mp == null) { // Recreate MediaPlayer if it was released
-            mp = MediaPlayer.create(this, data.get(currentIndex).getSound());
-        }
-        mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                sound_progress.setMax(mp.getDuration());
-                sound_length.setText(getFormattedTime(mp.getDuration()));
-            }
-        });
-
-        // Clickable functionality
-
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-
-
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mp.isPlaying()){
-                    play.setPaddingRelative(30,20,0,20);
-                    play.setImageResource(R.drawable.play);
-                    img.clearAnimation();
-                    mp.pause();
-                    handler.removeCallbacks(runnable);
-                }
-                else {
-                    sound_progress.setMax(mp.getDuration());
-                    sound_length.setText(getFormattedTime(mp.getDuration()));
-                    play.setPaddingRelative(30, 20, 35, 20);
-                    play.setImageResource(R.drawable.pause);
-                    img.startAnimation(rotate);
-                    mp.start();
-                    mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            handler.removeCallbacks(runnable);
-                            img.clearAnimation();
-                            play.setPaddingRelative(30,20,0,20);
-                            play.setImageResource(R.drawable.play);
-                            sound_progress.setProgress(0);
-                        }
-                    });
-                    handler.postDelayed(runnable, 100);
-
-                }
-            }
-        });
-
-        forward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                play.setPaddingRelative(30,20,35,20);
-                play.setImageResource(R.drawable.pause);
-                img.startAnimation(rotate);
-
-                mp.reset();
-                currentIndex = (currentIndex + 1) % data.size();
-                names = splitAndTrim(data.get(currentIndex).getName());
-                soundName.setText(names[1]);
-                soundUser.setText(names[0]);
-                mp = MediaPlayer.create(MainActivity.this,data.get(currentIndex).getSound());
-                mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mp) {
-                        sound_progress.setMax(mp.getDuration());
-                        sound_length.setText(getFormattedTime(mp.getDuration()));
-                    }
-                });
-                mp.start();
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        handler.removeCallbacks(runnable);
-                        img.clearAnimation();
-                        play.setPaddingRelative(30,20,0,20);
-                        play.setImageResource(R.drawable.play);
-                        sound_progress.setProgress(0);
-                    }
-                });
-                handler.postDelayed(runnable, 100);
-            }
-        });
-
-        backward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                play.setPaddingRelative(30,20,35,20);
-                play.setImageResource(R.drawable.pause);
-                img.startAnimation(rotate);
-
-                mp.reset();
-                if(currentIndex == 0){currentIndex = data.size()-1;} else {currentIndex-=1;}
-                names = splitAndTrim(data.get(currentIndex).getName());
-                soundName.setText(names[1]);
-                soundUser.setText(names[0]);
-                mp = MediaPlayer.create(MainActivity.this,data.get(currentIndex).getSound());
-
-                mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mp) {
-                        sound_progress.setMax(mp.getDuration());
-                        sound_length.setText(getFormattedTime(mp.getDuration()));
-                    }
-                });
-
-                mp.start();
-
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        handler.removeCallbacks(runnable);
-                        img.clearAnimation();
-                        play.setPaddingRelative(30,20,0,20);
-                        play.setImageResource(R.drawable.play);
-                        sound_progress.setProgress(0);
-                    }
-                });
-
-                handler.postDelayed(runnable, 100);
-            }
-        });
-    }
-
-    protected void onResume() {
-        super.onResume();
-        if (!firstTime) {
-            img.startAnimation(rotate);
-            handler.postDelayed(runnable, 100);
-        }
-    }
-
-    protected void onPause() {
-        super.onPause();
-        if (mp != null) {
-            img.clearAnimation();
-            handler.removeCallbacks(runnable);
-        }
-        firstTime = false;
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    // empty memory
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mp != null) {
-            mp.release();
-            mp = null;
-        }
-
+        return runnable;
     }
 
     // convert millisecond into time format
@@ -301,14 +250,47 @@ public class MainActivity extends AppCompatActivity {
         return String.format("%02d:%02d", minutes, seconds);
     }
 
-    public String[] splitAndTrim(@NonNull String text) {
-        String[] parts = text.split("-");
-        for (int i =0; i < parts.length; i++) {
-            parts[i] = parts[i].trim();
+    // Crop DocumentID (SoundFilePath) to only Name
+    public static String splitAndTrim(String text) {
+        if (text.indexOf('.') != -1){
+        return text.substring(text.lastIndexOf('/')+1, text.indexOf('.'));
         }
-        return parts;
+        else {
+            return text.substring(text.lastIndexOf('/')+1);
+        }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!firstTime) {
+            rotationAnimator.resume();
+            handler.postDelayed(runnable, 100);
+        }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mp != null) {
+            rotationAnimator.pause();
+            handler.removeCallbacks(runnable);
+        }
+        firstTime = false;
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handler.removeCallbacks(runnable);
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mp != null) {
+            mp.release();
+            mp = null;
+        }
+
+    }
 }
 
 
